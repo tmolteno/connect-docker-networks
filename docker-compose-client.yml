@@ -9,7 +9,7 @@ version: '3.4'
 services:
     client_vpn:
         image: dperson/openvpn-client
-            # cap_add, security_opt, and volume required for the image to function
+            # On the raspberry pi use dperson/openvpn-client:armhf
         cap_add:
             - net_admin
         environment:
