@@ -19,8 +19,8 @@ services:
         # we have to add the webserver ports here as the external_website is using the network stack of openvpn
         ports:
             - "1194:1194/udp"
-            - 8088:80		# Notice that this port is the nginx webserver port! 
-				# It goes here because the nginx is using the "service:openvpn" network.
+            - 8088:80         # Notice that this port is the nginx webserver port!
+                              # It goes here because the nginx is using the "service:openvpn" network.
         restart: unless-stopped
         volumes:
             - ./openvpn-data/conf:/etc/openvpn
