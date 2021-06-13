@@ -10,10 +10,12 @@ services:
     client_vpn:
         image: dperson/openvpn-client
             # On the raspberry pi use dperson/openvpn-client:armhf
+            # NOTE: There is currently a bug in alpine linux (issue #365 on dperson/openvpn-client)
+            # which means that you will have to build your own image from alpine 3.12.3!
         cap_add:
             - net_admin
         environment:
-            TZ: 'EST5EDT'
+            TZ: 'Pacific/Auckland'
         networks:
             - default
         read_only: true

@@ -14,25 +14,19 @@ all:
 	make client CLIENTNAME=signal CLIENTIP=33
 	make client CLIENTNAME=tartza CLIENTIP=22
 	
-server_setup: certs client
 
+# The directory of openvpn configuration information that is persistent. It is
+# Mounted on the server's docker-compose file.
 OVPN_DATA=openvpn-data
-CLIENT_HOST=kaka
 
-client_setup:
-	rsync -rvz ./vpn ${CLIENT_HOST}:demo/
-	rsync -rvz ./client_content ${CLIENT_HOST}:demo/
-	rsync -rvz ./nginx_client.conf ${CLIENT_HOST}:demo/
-	rsync -rvz ./docker-compose-client.yml ${CLIENT_HOST}:demo/docker-compose.yml
-
-DOCKER_HOST=tart.elec.ac.nz
+REMOTE_HOST=tart.elec.ac.nz
 certs:
 	${DRUN} ovpn_genconfig -s "10.0.0.0/24" \
 		-r "10.0.0.0/24" \
 		-e 'topology subnet' -E 'topology "subnet"' \
-		-D -z -b -c -u udp://${DOCKER_HOST}
-	${DRUN} ovpn_genconfig -u udp://${DOCKER_HOST}
-	${DRUN} ovpn_initpki
+		-D -z -b -c -u udp://${REMOTE_HOST}
+	${DRUN} ovpn_genconfig -u udp://${REMOTE_HOST}
+	${DRUN} ovpn_initpki nopass
 
 CLIENTNAME=signal
 CLIENTIP=33
@@ -49,6 +43,15 @@ run_server:
 	${DCOMPOSE} up -d
 	${DCOMPOSE} logs -f
 	
+
+CLIENT_HOST=kaka
+
+client_setup:
+	rsync -rvz ./vpn ./client_content ./nginx_client.conf ${CLIENT_HOST}:demo/
+# 	rsync -rvz ./client_content ${CLIENT_HOST}:demo/
+# 	rsync -rvz ./nginx_client.conf ${CLIENT_HOST}:demo/
+	rsync -rvz ./docker-compose-client.yml ${CLIENT_HOST}:demo/docker-compose.yml
+
 run_client:
 	ssh ${CLIENT_HOST} 'cd demo; docker-compose -f docker-compose-client.yml up'
 	
@@ -56,6 +59,9 @@ clean:
 	${DCOMPOSE} down --remove-orphans
 	rm -rf vpn
 	rm -rf openvpn-data
+
+	
+# Utilities for checking the configuration
 
 clients:
 	${DRUN} ovpn_listclients
@@ -65,7 +71,7 @@ bash:
 
 
 reload:
-	$DRUN} ovpn_genconfig
+	${DRUN} ovpn_genconfig
 
 upload:
 	sudo chown -R tim:tim ${OVPN_DATA}

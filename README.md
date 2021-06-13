@@ -54,6 +54,12 @@ Each client is then allocated a hostname in the servers docker-compose.yml file.
         - client.a:10.0.0.33
         - client.b:10.0.0.22
 
+        
+### Testing
+
+    wget -O - http://localhost:8088/
+    wget -O - http://localhost:8088/client_a
+
 ### Links
 
 - https://www.youtube.com/watch?v=OXjrBvSYB9o
