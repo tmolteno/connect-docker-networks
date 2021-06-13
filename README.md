@@ -8,22 +8,39 @@ in front of the firewall runing nginx that reverse proxies back to the client se
 The server will operate an openvpn server container. This container will allow other hosts to connect and allocate them
 an IP in the address range 10.0.0.0/24. OpenVPN credentials are created by the 'make client' command. 
 
+### Client Setup
+
 The following shows the steps that are done to create a client configuration. This will create a file called signal.ovpn that 
-will be needed by the client to authenticate to the server.
+will be needed by the client to authenticate to the server. These steps are carried out on the server container.
 
 
-	CLIENTNAME=signal
-	CLIENTIP=33
+    CLIENTNAME=signal
+    CLIENTIP=33
 
-	mkdir -p vpn
-	${DRUN} easyrsa build-client-full ${CLIENTNAME} nopass
-	${DRUN} ovpn_getclient ${CLIENTNAME} > ./vpn/${CLIENTNAME}.ovpn
-	${DRUN} mkdir -p /etc/openvpn/ccd
-	${DRUN} touch /etc/openvpn/ccd/${CLIENTNAME}
-	echo ifconfig-push 10.0.0.${CLIENTIP} 255.255.255.0 | ${DRUN}  tee /etc/openvpn/ccd/${CLIENTNAME}
+    mkdir -p vpn
+    easyrsa build-client-full ${CLIENTNAME} nopass
+    ovpn_getclient ${CLIENTNAME} > ./vpn/${CLIENTNAME}.ovpn
+    mkdir -p /etc/openvpn/ccd
+    touch /etc/openvpn/ccd/${CLIENTNAME}
+    echo ifconfig-push 10.0.0.${CLIENTIP} 255.255.255.0 | tee /etc/openvpn/ccd/${CLIENTNAME}
 
+Each client is then allocated a hostname in the servers docker compose file. In the example below, the 10.0.0.33 host can be given the hostname
+'client.a' which can be used for reverse proxying
 
-    make server_setup
+    extra_hosts:
+        - client.a:10.0.0.33
+        - client.b:10.0.0.22
+
+### Server Setup
+
+The server requires a suitable certificate authority (CA) and this is done by the 'make server_setup' command
+
+    ovpn_genconfig -s "10.0.0.0/24" \
+		-r "10.0.0.0/24" \
+		-e 'topology subnet' -E 'topology "subnet"' \
+		-D -z -b -c -u udp://${DOCKER_HOST}
+    ovpn_genconfig -u udp://${DOCKER_HOST}
+    ovpn_initpki
 
 ### Links
 

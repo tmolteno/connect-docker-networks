@@ -28,7 +28,7 @@ services:
             options:
                 max-file: "5"
                 max-size: "1m"
-        # These are allocated in the openvpn setup ccd as static IP addresses
+        # Clients are allocated static IPs during the setup as static IP addresses
         extra_hosts:
             - client.a:10.0.0.33
             - client.b:10.0.0.22
