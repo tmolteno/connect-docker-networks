@@ -1,7 +1,11 @@
-## Reverse proxying to a docker-container behind a firewall
+# Reverse proxying to a docker-container behind a firewall
+
+Author: Tim Molteno tim@molteno.net. 
+
 
 This demo shows how to connect a docker-container behind a firewall, to a container 
-in front of the firewall runing nginx that reverse proxies back to the client server behind the firewall.
+in front of the firewall runing nginx that reverse proxies back to the client server behind the firewall. 
+Please let me know if you find other ways to do this.
 
 ## How it works
 
